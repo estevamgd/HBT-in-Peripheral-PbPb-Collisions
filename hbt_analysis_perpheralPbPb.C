@@ -16,20 +16,10 @@ void hbt_analysis_perpheralPbPb() {
     std::cout << "Start: " << date1.tm_mday << "/" << date1.tm_mon + 1 << "/" << date1.tm_year + 1900 <<  " " 
         << date1.tm_hour << ":" << date1.tm_min << ":" << date1.tm_sec << std::endl;
 
-    // Open the input file
-    TFile *fr = new TFile("HiForestAOD_UPC.root", "READ");
-    if (!fr || fr->IsZombie()) {
-        std::cerr << "Error: File could not be opened!" << std::endl;
-        return;
-    }
+    TFile *fr = nullptr;
+    TTree *t = nullptr;
 
-    // Get the tree from demo/HBT
-    TTree *t;
-    fr->GetObject("demo/HBT", t);
-    if (!t) {
-        std::cerr << "Error: Tree 'demo/HBT' not found!" << std::endl;
-        return;
-    }
+    getFileTree("HiForestAOD_UPC.root", "demo/HBT", fr, t);
 
     // Variables
     Int_t maxSize = 17100;

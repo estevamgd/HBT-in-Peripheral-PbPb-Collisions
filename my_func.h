@@ -8,8 +8,29 @@
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
+#include <time.h>
 #include <TStyle.h>
+#include "my_func.h"
 
+bool getFileTree(const char* file_name, const char* tree_name, TFile *&fr, TTree *&t) {
+    // Open the input file
+    fr = new TFile(file_name, "READ");
+    if (!fr || fr->IsZombie()) {
+        std::cerr << "Error: File could not be opened!" << std::endl;
+        return false;
+    }
+
+    // Get the tree from the specified path
+    fr->GetObject(tree_name, t);
+    if (!t) {
+        std::cerr << "Error: Tree '" << tree_name << "' not found!" << std::endl;
+        fr->Close();
+        delete fr;
+        return false;
+    }
+
+    return true;
+}
 
 // Bin size calculator
 int numBins(int numValues) {
