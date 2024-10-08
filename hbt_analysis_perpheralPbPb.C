@@ -7,36 +7,7 @@
 #include <iomanip>
 #include <time.h>
 #include <TStyle.h>
-
-// Bin size calculator
-int numBins(int numValues) {
-    return (int)sqrt(numValues);
-}
-
-// Histogram layout
-TH1D* cHist(const char* name, const char* xAxisTitle, const char* yAxisTitle, 
-                      int nVal, double xMin, double xMax) {
-    // Create the histogram
-    int nBins = numBins(nVal);
-    TH1D* h = new TH1D(name, "", nBins, xMin, xMax);
-
-    // Set visual properties
-    h->SetFillColor(kGray); 
-    h->SetLineColor(kBlack); 
-    h->SetLineWidth(1); 
-
-    // Set titles and axis labels
-    h->SetTitle("");
-    h->GetXaxis()->SetTitle(xAxisTitle);
-    h->GetYaxis()->SetTitle(yAxisTitle);
-    
-    // Set label sizes
-    h->GetXaxis()->SetLabelSize(0.04);
-    h->GetYaxis()->SetLabelSize(0.04);
-    
-    return h;
-}
-
+#include "my_func.h"
 
 void hbt_analysis_perpheralPbPb() {
     // Keeping track of time
@@ -100,13 +71,13 @@ void hbt_analysis_perpheralPbPb() {
     TCanvas *c3 = new TCanvas("c3", "Histograms", 7680, 4320);
 
     // Setting histograms
-    TH1D *h1 = cHist("h1", "HFsumET[GeV]", "#Events/bin", nentries, -0.1, 400);
-    TH1D *h2 = cHist("h2", "coulombWOS", "#Pairs/bin", nentries, 0.3, 1.1);
-    TH1D *h3 = cHist("h3", "coulombWSS", "#Pairs/bin", nentries, 0.8, 3.5);
-    TH1D *h4 = cHist("h4", "Ntrk", "#Events/bin", nentries, -0.1, 500);
-    TH1D *h5 = cHist("h5", "qinvSigOS[GeV]", "#Pairs/bin", nentries, -0.1, 1.1);
-    TH1D *h6 = cHist("h6", "qinvSigSS[GeV]", "#Pairs/bin", nentries, -0.1, 1.1);
-    TH1D *h7 = cHist("h7", "pT[GeV]", "#Tracks/bin", nentries, -0.1, 21);
+    TH1D *h1 = cHist("h1", "HFsumET[GeV]", "#Events/bin", nentries, -20, 400);
+    TH1D *h2 = cHist("h2", "coulombWOS", "#Pairs/bin", 10000, 0.4, 1.18);
+    TH1D *h3 = cHist("h3", "coulombWSS", "#Pairs/bin", 10000, 0.8, 3.2);
+    TH1D *h4 = cHist("h4", "Ntrk", "#Events/bin", 10000, -20, 500);
+    TH1D *h5 = cHist("h5", "qinvSigOS[GeV]", "#Pairs/bin", nentries, -0.1, 1.23);
+    TH1D *h6 = cHist("h6", "qinvSigSS[GeV]", "#Pairs/bin", nentries, -0.1, 1.3);
+    TH1D *h7 = cHist("h7", "pT[GeV]", "#Tracks/bin", 10000, -1, 45);
     TH1D *h8 = cHist("h8", "trkEta", "#Tracks/bin", nentries, -2.6, 2.6);
     TH1D *h9 = cHist("h9", "trkPhi", "#Tracks/bin", nentries, -3.4, 3.4);
     TH1D *h10 = cHist("h10", "trkPtRes", "#Tracks/bin", nentries, 0, 0.11);
@@ -164,7 +135,7 @@ void hbt_analysis_perpheralPbPb() {
     time_t ttime = time(NULL);
     struct tm date = *localtime(&ttime);
     char time_name[38];
-    sprintf(time_name, "./imgs/teste/teste-%d-%02d-%02d-%02d-%02d-%02d", 
+    sprintf(time_name, "./imgs/final/final-%d-%02d-%02d-%02d-%02d-%02d", 
             date.tm_year + 1900, 
             date.tm_mon + 1, 
             date.tm_mday, 
@@ -173,10 +144,9 @@ void hbt_analysis_perpheralPbPb() {
             date.tm_sec);
 
     char c1_name[45], c2_name[45], c3_name[45];
-    sprintf(c1_name, "%s-01.pdf", time_name);
-    sprintf(c2_name, "%s-02.pdf", time_name);
-    sprintf(c3_name, "%s-03.pdf", time_name);
-
+    sprintf(c1_name, "%s-01.png", time_name);
+    sprintf(c2_name, "%s-02.png", time_name);
+    sprintf(c3_name, "%s-03.png", time_name);
     c1->Print(c1_name);
     c2->Print(c2_name);
     c3->Print(c3_name);
@@ -185,7 +155,7 @@ void hbt_analysis_perpheralPbPb() {
     std::cout << "End: " << date.tm_mday << "/" << date.tm_mon + 1 << "/" << date.tm_year + 1900 <<  " " 
         << date.tm_hour << ":" << date.tm_min << ":" << date.tm_sec << std::endl;
 
-    
+
     delete h1;
     delete h2;
     delete h3;
