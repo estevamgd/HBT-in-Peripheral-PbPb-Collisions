@@ -60,6 +60,9 @@ void hbt_analysis_perpheralPbPb() {
 
     TCanvas *c3 = new TCanvas("c3", "Histograms", 7680, 4320);
 
+    TCanvas *canvases[] = {c1, c2, c3};
+    int numCanvases = 3;
+
     // Setting histograms
     TH1D *h1 = cHist("h1", "HFsumET[GeV]", "#Events/bin", nentries, -20, 400);
     TH1D *h2 = cHist("h2", "coulombWOS", "#Pairs/bin", 10000, 0.4, 1.18);
@@ -74,6 +77,9 @@ void hbt_analysis_perpheralPbPb() {
     TH1D *h11 = cHist("h11", "trkDxySig", "#Tracks/bin", nentries, -3.5, 3.5);
     TH1D *h12 = cHist("h12", "trkDzSig", "#Tracks/bin", nentries, -3.5, 3.5);
     TH1D *h13 = cHist("h13", "trkNpixLayers", "#Tracks/bin", 100, 0, 5);
+
+    TH1D *histograms[] = {h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13};
+    int numHistograms = 13;
 
     // Filling histograms
     for (Long64_t i = 0; i < nentries; i++) {
@@ -105,7 +111,6 @@ void hbt_analysis_perpheralPbPb() {
         std::cout << "\rProgress: " << std::fixed << std::setprecision(1) << progress << "%" << std::flush;
     }
 
-    std::cout << std::endl;
     // Drawing histograms
     c1->cd(1); gPad->SetGrid(); gPad->SetLeftMargin(0.15); h1->Draw(); 
     c1->cd(2); gPad->SetGrid(); gPad->SetLogy(); gPad->SetLeftMargin(0.15); h2->Draw(); 
@@ -122,46 +127,12 @@ void hbt_analysis_perpheralPbPb() {
     c3->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); h13->Draw(); 
 
     // Save canvas images
-    time_t ttime = time(NULL);
-    struct tm date = *localtime(&ttime);
-    char time_name[38];
-    sprintf(time_name, "./imgs/final/final-%d-%02d-%02d-%02d-%02d-%02d", 
-            date.tm_year + 1900, 
-            date.tm_mon + 1, 
-            date.tm_mday, 
-            date.tm_hour, 
-            date.tm_min, 
-            date.tm_sec);
+    const char *path = "./imgs/teste/";
+    const char *prefix = "all-histograms";
+    const char *file_type = "png";
 
-    char c1_name[45], c2_name[45], c3_name[45];
-    sprintf(c1_name, "%s-01.png", time_name);
-    sprintf(c2_name, "%s-02.png", time_name);
-    sprintf(c3_name, "%s-03.png", time_name);
-    c1->Print(c1_name);
-    c2->Print(c2_name);
-    c3->Print(c3_name);
+    save_canvas_images(canvases, numCanvases, path, prefix, file_type);
 
-    // Track time
-    std::cout << "End: " << date.tm_mday << "/" << date.tm_mon + 1 << "/" << date.tm_year + 1900 <<  " " 
-        << date.tm_hour << ":" << date.tm_min << ":" << date.tm_sec << std::endl;
-
-
-    delete h1;
-    delete h2;
-    delete h3;
-    delete h4;
-    delete h5;
-    delete h6;
-    delete h7;
-    delete h8;
-    delete h9;
-    delete h10;
-    delete h11;
-    delete h12;
-    delete h13;
-    delete c1;
-    delete c2;
-    delete c3;
-    fr->Close();
-    delete fr;
+    // close file
+    close_program(canvases, numCanvases, histograms, numHistograms, fr);
 }
