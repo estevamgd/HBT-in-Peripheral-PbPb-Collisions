@@ -24,6 +24,7 @@ mesma ideia só que com o if cortando o maximo e minimo
 
 16/10/2024
 
+- testar função setup, void setupVars(TFile *&f) -> ver se da pra acessar as variaveis fora da função
 Função fill:
 - fill(array entry=nullptr, array ntrk=nullptr, array qinvsigos=nullptr, array qinvsigss=nullptr)
 

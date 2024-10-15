@@ -53,12 +53,13 @@ void single_ratio() {
 
     // Setting canvases
     TCanvas *c1 = new TCanvas("c1", "", 7680, 4320);
+    TCanvas *c2 = new TCanvas("c2", "", 7680, 4320);
 
-    TCanvas *canvases[] = {c1};
-    int numCanvases = 1;
+    TCanvas *canvases[] = {c1, c2};
+    int numCanvases = 2;
 
     // Setting histograms
-    TH1D *h1 = cHist("h1", "SS/OS", "#Pairs/bin", nentries, -0.1, 1.1, 920, 0.3, 1, 632, 1, 1);
+    TH1D *h1 = cHist("h1", "qinv[GeV]", "#Pairs/bin", nentries, -0.1, 1.1, 920, 0.3, 1, 632, 1, 1);
     TH1D *h2 = cHist("h2", "", "", nentries, -0.1, 1.1, 0, 0, 0, 600, 1, 1);
 
     TH1D *tonormhist[] = {h1, h2};
@@ -87,9 +88,21 @@ void single_ratio() {
     Double_t scale = 1;
     normalizer(tonormhist, numTonorm, scale);
 
+    // Drawing normalized qinvSigOS and qinvSigSS
+    TLegend *legend = new TLegend(0.2, 0.7, 0.4, 0.9);
+    legend->AddEntry(h1, "Normalized qinvSigOS (50-70%%)", "l");
+    legend->AddEntry(h2, "Normalized qinvSigSS (50-70%%)", "l");
+    c2->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); h1->Draw(); h2->Draw("same");
+    legend->Draw();
+
     // Dividing SS/OS
     TH1D *sr = (TH1D *)h2->Clone("sr");
     sr->Divide(h1);
+
+    // Adding labels
+    sr->SetTitle("Single Ratio");
+    sr->GetXaxis()->SetTitle("qinv[GeV]");
+    sr->GetYaxis()->SetTitle("SS/OS");
     
     // Overwriting bin 1 with bin 2 to remove big eror
     int nBin = difZeroBin(sr);
@@ -103,8 +116,8 @@ void single_ratio() {
     c1->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); sr->Draw();
 
     // Saving image
-    const char *path = "./imgs/teste/";
-    const char *prefix = "teste-normalizar-sr";
+    const char *path = "./imgs/final/";
+    const char *prefix = "final-normalizar-sr";
     const char *file_type = "png";
     save_canvas_images(canvases, numCanvases, path, prefix, file_type);
 
