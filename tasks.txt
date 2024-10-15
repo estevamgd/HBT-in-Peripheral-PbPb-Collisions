@@ -1,0 +1,31 @@
+para o caso que 
+selecionou na centralidade, normaliza ambas as distribuições de qinv (OS e SS) 
+para 1 e divide SS/OS os histogramas normalizados, com isso estará fazendo o 
+que chamamos de Single Ratio, ou função de correlação. Lembrando que SS tem o 
+sinal de interferência quântica, pois são partículas identicas, já o OS não 
+tem sinal... Veja esse método do Root aqui para dividir os histogramas bin-a-bin: 
+https://root.cern.ch/doc/master/classTH1.html#ac782a09c31b4f7de40f8fd4f77efa090
+
+
+15/10/2024
+remover primeiro bin
+
+faça com que o normalizing gere gráficos das seguintes etapas:
+- sem normalizar
+- normalizado
+- single ratio
+
+Função fill:
+- fill(array entry=nullptr, array ntrk=nullptr, array qinvsigos=nullptr, array qinvsigss=nullptr)
+
+Função centrality:
+mesma ideia só que com o if cortando o maximo e minimo
+
+
+16/10/2024
+
+Função fill:
+- fill(array entry=nullptr, array ntrk=nullptr, array qinvsigos=nullptr, array qinvsigss=nullptr)
+
+Função centrality:
+mesma ideia só que com o if cortando o maximo e minimo
