@@ -39,6 +39,8 @@ int difZeroBin(TH1D *h, int maxBins = 10000) {
             return nBin;
         }
     }
+
+    return -1;
 }
 
 void print_types(){

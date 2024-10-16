@@ -11,6 +11,7 @@
 #include "TLegend.h"
 #include "normalizer.h"
 #include "analyze_tools.h"
+#include <TText.h>
 
 void single_ratio() {
     // Setting up, copy from HERE to...
@@ -87,34 +88,37 @@ void single_ratio() {
     // Normalize histograms
     Double_t scale = 1;
     normalizer(tonormhist, numTonorm, scale);
-
+    /*
     // Drawing normalized qinvSigOS and qinvSigSS
     TLegend *legend = new TLegend(0.2, 0.7, 0.4, 0.9);
     legend->AddEntry(h1, "Normalized qinvSigOS (50-70%%)", "l");
     legend->AddEntry(h2, "Normalized qinvSigSS (50-70%%)", "l");
     c2->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); h1->Draw(); h2->Draw("same");
     legend->Draw();
-
+    */
     // Dividing SS/OS
     TH1D *sr = (TH1D *)h2->Clone("sr");
     sr->Divide(h1);
 
     // Adding labels
-    sr->SetTitle("Single Ratio");
+    sr->SetTitle("CMS Open Data 2011 - PbPb 2.76 TeV");
     sr->GetXaxis()->SetTitle("qinv[GeV]");
-    sr->GetYaxis()->SetTitle("SS/OS");
+    sr->GetYaxis()->SetTitle("Single Ratio SS/OS");
+    
+    TText *text = new TText(0.8, 1.5, "50-70%");
+    text->SetTextSize(0.03);
     
     // Overwriting bin 1 with bin 2 to remove big eror
     int nBin = difZeroBin(sr);
-    Double_t bin2_content = sr->GetBinContent(nBin+1);
-    Double_t bin2_error = sr->GetBinError(nBin+1);
+    
+    // Setting y range to 0.95<y<1.6
+    sr->GetYaxis()->SetRangeUser(0.95, 1.6);
+    
+    // Removing statistics box
+    sr->SetStats(0);
 
-    sr->SetBinContent(nBin, bin2_content);
-    sr->SetBinError(nBin, bin2_error);
-
-    // Drawing histogram
-    c1->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); sr->Draw();
-
+    // Drawing the single ratio
+    c1->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); sr->Draw(); text->Draw();
     // Saving image
     const char *path = "./imgs/final/";
     const char *prefix = "final-normalizar-sr";
