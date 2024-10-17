@@ -133,4 +133,10 @@ void close_program(TCanvas *canvases[], int numCanvases, TH1D *histograms[], int
     delete fr;
 }
 
+void no_statbox(TH1D *histograms[], int numHistograms) {
+    for (int i = 0; i < numHistograms; i++) {
+        histograms[i]->SetStats(0);
+    }
+}
+
 #endif 

@@ -21,8 +21,28 @@ Função fill:
 Função centrality:
 mesma ideia só que com o if cortando o maximo e minimo
 
+fixar o range em y para 0.95<y<1.6... Remover a caixa de estatística pois não traz 
+muita informação nesse caso. E colocar no plot: "CMS Open Data 2011 - PbPb 2.76 TeV" 
+(Remove Single Ratio do topo e coloca no eixo y junto com SS/OS... aí coloca 
+"CMS Open Data 2011 - PbPb 2.76 TeV" no lugar do Single Ratio)  e também a seleção 
+de centralidade: 50-70% (pode colocar dentro na parte onde estão os pontos). Abraço!
 
 16/10/2024
+
+- testar função setup, void setupVars(TFile *&f) -> ver se da pra acessar as variaveis fora da função
+Função fill:
+- fill(array entry=nullptr, array ntrk=nullptr, array qinvsigos=nullptr, array qinvsigss=nullptr)
+
+Função centrality:
+mesma ideia só que com o if cortando o maximo e minimo
+
+17/10/2024
+
+aplicar a correção de Coulomb...veja que tem as variáveis coulombWOS e coulombWSS...se vc preencher 
+seu histogram como hist->Fill(qinvSigOS, coulombWOS) e mesma coisa para SS, vai ter as distribuições 
+de qinv corrigidas por coulomb... então seria interessante fazer duas coisas 1) comparar as distribuições 
+de `qinvOS` vs `qinvOS corrigida` e mesma coisa para SS...  2) Comparar o Single Ratio com e sem correção 
+de coulomb.
 
 - testar função setup, void setupVars(TFile *&f) -> ver se da pra acessar as variaveis fora da função
 Função fill:
