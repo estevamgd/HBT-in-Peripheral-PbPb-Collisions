@@ -132,10 +132,16 @@ void coulomb_correction() {
     sr_legend->AddEntry(sr, "Without Coulomb Correction", "l");
     sr_legend->AddEntry(sr_cor, "With Coulomb Correction", "l");
     
-    // Setting y range to 0.95<y<1.6
+    // Setting y range in single ratio to 0.95<y<1.6
     sr->GetYaxis()->SetRangeUser(0.95, 1.6);
     sr_cor->GetYaxis()->SetRangeUser(0.95, 1.6);
-
+    /*
+    // Setting x range in qinv to qinv<0.1
+    h1->GetXaxis()->SetRangeUser(0,0.1);
+    h2->GetXaxis()->SetRangeUser(0,0.1);
+    h3->GetXaxis()->SetRangeUser(0,0.1);
+    h4->GetXaxis()->SetRangeUser(0,0.1);
+    */
     // Removing statistics box
     TH1D *histograms[] = {h1, h2, h3, h4, sr, sr_cor};
     int numHistograms = 6;
@@ -148,8 +154,8 @@ void coulomb_correction() {
     c3->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); sr->Draw(); sr_cor->Draw("same"); sr_legend->Draw();
     
     // Saving image
-    const char *path = "./imgs/final/";
-    const char *prefix = "final-coulomb-correction";
+    const char *path = "./imgs/teste/";
+    const char *prefix = "teste-coulomb-correction";
     const char *file_type = "png";
     save_canvas_images(canvases, numCanvases, path, prefix, file_type);
 

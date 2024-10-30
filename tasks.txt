@@ -46,7 +46,43 @@ de coulomb.
 
 - testar função setup, void setupVars(TFile *&f) -> ver se da pra acessar as variaveis fora da função
 Função fill:
+- fill(array entry=nullptr, array ntrk=nullptr, aOS rray qinvsigos=nullptr, array qinvsigss=nullptr)
+
+Função centrality:
+mesma ideia só que com o if cortando o maximo e minimo
+
+18/10/2024
+
+- testar função setup, void setupVars(TFile *&f) -> ver se da pra acessar as variaveis fora da função
+Função fill:
+
+- testar multithread
+
 - fill(array entry=nullptr, array ntrk=nullptr, array qinvsigos=nullptr, array qinvsigss=nullptr)
 
 Função centrality:
 mesma ideia só que com o if cortando o maximo e minimo
+
+21/10/2024
+
+nos seus gráficos de qinv onde compara com e sem correção, poderia dar um zoom em qinv<0.1
+
+22/10/2024
+
+Boa tarde, Estevam...interessante, para mim parece o oposto...o seu OS parece SS e vice-versa... 
+hehe... Por exemplo, suponha o caso SS...Coulomb faz repulsão logo, tende a diminuir as contagens 
+no eixo-y para valores baixo de qinv, certo? aí, quando vc aplica a correção deve aumentar essas 
+contagens, certo? pois vc tenderia a remover o efeito de Coulomb com a correção. Por favor, veja 
+se não inverteu SS e OS ao plotar...Outra coisa, poderia fazer os gráficos para os dois casos de 
+Coulomb Vs qinv? faz 2D...e também plota junto o profile para ver o valor médio do fator de Coulomb 
+em função de qinv...veja aqui ProfileX: https://root.cern/doc/master/classTH2.html#a19eb4ae4f4d399b0f4ad820d838de75e
+
+28/10/2024
+
+fazer os fits para extrair os raios e o lambda
+fit do SR
+função de correlação usando essas funcões aqui: https://github.com/i5albg/hbt_analysis/blob/main/final_HBT.C#L44-L67)
+
+30/10/2024
+
+Levy fit not working

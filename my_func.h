@@ -5,6 +5,7 @@
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TH1D.h"
+#include "TH2D.h"
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
@@ -117,17 +118,27 @@ void save_canvas_images(TCanvas *canvases[], int numCanvases, const char *path, 
 }
 
 // Delete canvases and histograms
-void close_program(TCanvas *canvases[], int numCanvases, TH1D *histograms[], int numHistograms, TFile *fr) {
+void close_program(TCanvas *canvases[], int numCanvases, TH1D *histograms[], int numHistograms, TFile *fr,
+                    TH2D *histograms2d[] = nullptr) {
     if (numCanvases > 0) {
         for (int i = 0; i < numCanvases; i++) {
             delete canvases[i];
         }
     }
-    if (numHistograms > 0) {
-        for (int i = 0; i < numHistograms; i++) {
-            delete histograms[i];
+    if (histograms != nullptr) {
+        if (numHistograms > 0) {
+            for (int i = 0; i < numHistograms; i++) {
+                delete histograms[i];
+            }
+        }
+    }else {
+        if (numHistograms > 0) {
+            for (int i = 0; i < numHistograms; i++) {
+                delete histograms2d[i];
+            }
         }
     }
+    
 
     fr->Close();
     delete fr;
