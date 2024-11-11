@@ -11,12 +11,12 @@
 #include <iomanip>
 #include <time.h>
 #include <TStyle.h>
-#include "my_func.h"
 #include "TLegend.h"
-#include "normalizer.h"
-#include "analyze_tools.h"
 #include <TText.h>
 #include <TBenchmark.h>
+#include "../include/my_func.h"
+#include "../include/normalizer.h"
+#include "../include/analyze_tools.h"
 
 
 //to reject a range in the fit -- in principle did not reject any range
@@ -61,7 +61,7 @@ void fitting_sr() {
     int numCanvases = 1;
 
     // Open the ROOT file containing histograms
-    TFile *fr = TFile::Open("50_70_qinv_normqinv_sr.root", "READ");
+    TFile *fr = TFile::Open("data/50_70_qinv_normqinv_sr.root", "READ");
     if (!fr || fr->IsZombie()) {
         std::cerr << "Error opening file!" << std::endl;
         return;

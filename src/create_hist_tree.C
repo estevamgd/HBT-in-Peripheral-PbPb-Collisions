@@ -11,12 +11,13 @@
 #include <iomanip>
 #include <time.h>
 #include <TStyle.h>
-#include "my_func.h"
 #include "TLegend.h"
-#include "normalizer.h"
-#include "analyze_tools.h"
 #include <TText.h>
 #include <TBenchmark.h>
+#include <TProfile.h>
+#include "../include/my_func.h"
+#include "../include/normalizer.h"
+#include "../include/analyze_tools.h"
 
 
 void create_hist_tree() {
@@ -30,7 +31,7 @@ void create_hist_tree() {
     TFile *fr = nullptr;
     TTree *t = nullptr;
 
-    getFileTree("HiForestAOD_UPC.root", "demo/HBT", fr, t);
+    getFileTree("data/HiForestAOD_UPC.root", "demo/HBT", fr, t);
     
     // Variables
     Int_t maxSize = 17100;
@@ -110,7 +111,7 @@ void create_hist_tree() {
     sr->SetLineColor(kRed);
 
     // Saving into a Tree
-    TFile save_f2("50_70_qinv_normqinv_sr.root","RECREATE");
+    TFile save_f2("data/50_70_qinv_normqinv_sr.root","RECREATE");
     /*    auto save_t = new TTree("save_t", "some_hist");
     
     save_t->Branch("h1", "TH1D", &h1);

@@ -3,10 +3,24 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include <TROOT.h>
+#include <TF1.h>
+#include <TMath.h>
+#include <TMath.h>
 #include "TCanvas.h"
 #include "TH1D.h"
+#include <stdio.h>
+#include <iostream>
+#include <iomanip>
+#include <time.h>
+#include <TStyle.h>
+#include "TLegend.h"
+#include <TText.h>
+#include <TBenchmark.h>
+#include <TProfile.h>
 #include "my_func.h"
-#include "fill_hist.h"
+#include "normalizer.h"
+#include "analyze_tools.h"
 
 // Prototype fill error, might not even be worth to make this one
 void fill_hist(Long64_t nEntries, TTree *&t, Int_t &Ntrk, Int_t &NOSpair, Int_t &NSSpair,

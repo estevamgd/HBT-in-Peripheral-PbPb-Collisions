@@ -5,7 +5,7 @@
 
 void simple_draw() {
     // Open the input file
-    TFile* fr = new TFile("HiForestAOD_UPC.root", "READ");
+    TFile* fr = new TFile("data/HiForestAOD_UPC.root", "READ");
 
     // Get the tree from demo/HBT
     TTree* t;
