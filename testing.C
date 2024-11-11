@@ -1,105 +1,76 @@
 #include "TFile.h"
 #include "TTree.h"
+#include <TROOT.h>
+#include <TF1.h>
+#include <TMath.h>
 #include "TCanvas.h"
 #include "TH1D.h"
-#include <stdio.h>
 #include <iostream>
 #include <iomanip>
-#include <time.h>
 #include <TStyle.h>
 #include "my_func.h"
 #include "TLegend.h"
 #include "normalizer.h"
 #include "analyze_tools.h"
 #include <TText.h>
-#include "TStopwatch.h"
+#include <TBenchmark.h>
 
+void test_NaN(Double_t x) {
+    if (TMath::IsNaN(x) != 0) {
+        std::cout << "Is NaN" << std::endl;
+    } else {
+        std::cout << "Isn't NaN" << std::endl;
+    }
+}
+
+void test_NaN(Float_t x) {
+    if (TMath::IsNaN(x) != 0) {
+        std::cout << "Is NaN" << std::endl;
+    } else {
+        std::cout << "Isn't NaN" << std::endl;
+    }
+}
+
+Double_t test_func(Double_t* x, Double_t* par) {
+    Double_t v = (par[1] - par[2]) / (x[0]-0.6);
+    std::cout << "Function value: " << x[0] << std::endl;
+
+    if (TMath::IsNaN(v)) {
+        std::cout << "REJECTED" << std::endl;
+        TF1::RejectPoint();  // Rejects the current point in the fit
+        return 0; // Return zero for the rejected point
+    }
+    
+    return v;
+}
 
 void testing() {
-    // Setting up, copy from HERE to...
-    // Getting TTree
-    TFile *fr = nullptr;
-    TTree *t = nullptr;
+    // Creating a histogram with 5 bins in the range 0-1
+    TH1D *hist_test = new TH1D("h", "Test Histogram", 5, 0, 1);
+    double_t j = 1;
+    double_t k;
+    double_t l = 1;
 
-    getFileTree("HiForestAOD_UPC.root", "demo/HBT", fr, t);
-    
-    // Variables
-    Int_t maxSize = 17100;
-    Int_t Ntrk = maxSize, NSSpair = maxSize, NOSpair = maxSize;
-    Float_t HFsumET;
-    Float_t coulombWOS[NOSpair], coulombWSS[NSSpair], qinvSigSS[NSSpair], qinvSigOS[NOSpair], 
-            trkPt[Ntrk], trkEta[Ntrk], trkPhi[Ntrk], trkPtRes[Ntrk], 
-            trkDxySig[Ntrk], trkNpixLayers[Ntrk], trkDzSig[Ntrk];
-
-    // Arrays of variables
-    void* variables[] = {
-        &HFsumET, &Ntrk, &NSSpair, &NOSpair, coulombWOS, coulombWSS, qinvSigOS, qinvSigSS, 
-        trkPt, trkEta, trkPhi, trkPtRes, trkDxySig, trkDzSig, trkNpixLayers
-    };
-
-    // Branch names
-    const char* branchNames[] = {
-        "HFsumET", "Ntrk", "NSSpair", "NOSpair", "coulombWOS", "coulombWSS", 
-        "qinvSigOS", "qinvSigSS", "trkPt", "trkEta", "trkPhi", "trkPtRes", 
-        "trkDxySig", "trkDzSig", "trkNpixLayers"
-    };
-
-    // Setting addresses
-    int numBranches = sizeof(variables) / sizeof(variables[0]);
-    for (int i = 0; i < numBranches; i++) {
-        t->SetBranchAddress(branchNames[i], variables[i]);
+    for (double_t i = 1; i <= 5; i++) {
+        k = j / l;
+        hist_test->Fill(k);
+        l++;
     }
 
-    // ...HERE
-    // Getting how many entries
-    Long64_t nentries = t->GetEntries();
+    // Define a TF1 with test_func in range 0-1, with 3 parameters
+    TF1 *fit_test = new TF1("fit_test", test_func, 0, 1, 3);
+    fit_test->SetParameters(1.0, 3.0, 3.0);  // Initialize parameters to avoid division by zero
 
-    // Setting histograms
-    TH1D *h1 = cHist("h1", "qinv[GeV]", "#Pairs/bin", nentries, -0.1, 1.1, 0, 0, 0, 920);
-    TH1D *h2 = cHist("h2", "qinv[GeV]", "#Pairs/bin", nentries, -0.1, 1.1, 0, 0, 0, 920);
-    TH1D *h3 = cHist("h3", "", "", nentries, -0.1, 1.1, 0, 0, 0, 632);
-    TH1D *h4 = cHist("h4", "", "", nentries, -0.1, 1.1, 0, 0, 0, 632);
-    // Create a stopwatch instance
-    TStopwatch stopwatch;
+    // Fit histogram with the function, using the "R" option for range restriction
+    hist_test->Fit(fit_test, "Q");
 
-    // Start the stopwatch
-    stopwatch.Start();
+    // Set colors and draw
+    fit_test->SetLineColor(kRed);
+    hist_test->SetLineColor(kBlue);
 
-    ROOT::EnableImplicitMT();
-    // Filling histograms
-    for (Long64_t i = 0; i < nentries; i++) {
-        t->GetEntry(i);
+    TCanvas *c1 = new TCanvas("c1", "Test Canvas", 800, 600);
+    hist_test->Draw();
+    fit_test->Draw("Same");
 
-        if (HFsumET > 100 && HFsumET < 375) { // This selects a centrality
-            for (int k = 0; k < NOSpair; k++) {
-                h1->Fill(qinvSigOS[k]);
-                h3->Fill(qinvSigOS[k], coulombWOS[k]);
-
-            }
-            for (int l = 0; l < NSSpair; l++) {
-                h2->Fill(qinvSigSS[l]);
-                h4->Fill(qinvSigSS[l], coulombWSS[l]);
-            }    
-        }
-
-        // Display progress
-        float progress = (float)(i + 1) / nentries * 100;
-        std::cout << "\rFilling Progress: " << std::fixed << std::setprecision(1) << progress << "%" << std::flush;
-    }
-    ROOT::DisableImplicitMT();
-    // Stop the stopwatch
-    stopwatch.Stop();
-
-    // Get the real (wall clock) time and CPU time
-    double realTime = stopwatch.RealTime();
-    double cpuTime = stopwatch.CpuTime();
-
-    // Print the times
-    std::cout << "Real time: " << realTime << " seconds" << std::endl;
-    std::cout << "CPU time: " << cpuTime << " seconds" << std::endl;
-
-    delete h1;
-    delete h2;
-    delete h3;
-    delete h4;
+    c1->Update();
 }

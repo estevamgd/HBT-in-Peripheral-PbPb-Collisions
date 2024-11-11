@@ -86,3 +86,7 @@ função de correlação usando essas funcões aqui: https://github.com/i5albg/h
 30/10/2024
 
 Levy fit not working
+
+01/11/2024
+
+there is some nan values for v in levy function, maybe that makes the graph not plot?
