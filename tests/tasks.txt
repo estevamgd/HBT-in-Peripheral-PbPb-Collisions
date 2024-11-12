@@ -90,3 +90,12 @@ Levy fit not working
 01/11/2024
 
 there is some nan values for v in levy function, maybe that makes the graph not plot?
+
+12/11/2024
+
+1) eu não consigo ver sua curva de Coulomb, talvez colocar de outra cor? 
+
+2) Colocar no Canvas, para cada fit function, os valores com respectivas incertezas dos parâmetros e o Chi2/NDF  ou o 
+p-value .. acho melhor o p-value que você pode calcular usando Chi2 e NDF (NDF=número de graus de liberdade do fit = 
+número de pontos da curva fitada menos o número de parâmetros da sua função).  
+https://root-forum.cern.ch/t/extracting-chi2-ndf-and-p-value-from-th1-chi2test/2549
