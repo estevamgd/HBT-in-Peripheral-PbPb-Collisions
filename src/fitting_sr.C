@@ -14,16 +14,17 @@
 #include "TLegend.h"
 #include <TText.h>
 #include <TBenchmark.h>
+#include <TLine.h>
 #include "../include/my_func.h"
 #include "../include/normalizer.h"
 #include "../include/analyze_tools.h"
 
 
-//to reject a range in the fit -- in principle did not reject any range
+// to reject a range in the fit -- in principle did not reject any range
 Double_t reject_range_min = 0.01;
 Double_t reject_range_max = 0.00001;
 
-//Exponential function + long range
+// Exponential function + long range
 Double_t func1_exp(Double_t* x, Double_t* par){
     Double_t v = 0;
     if(reject_range_min<x[0] && x[0]<reject_range_max){TF1::RejectPoint();}
@@ -31,7 +32,7 @@ Double_t func1_exp(Double_t* x, Double_t* par){
     return v;
 }
 
-//Gaussian function + long range
+// Gaussian function + long range
 Double_t func2_gauss(Double_t* x, Double_t* par){
     Double_t v = 0;
     if(reject_range_min<x[0] && x[0]<reject_range_max){TF1::RejectPoint();}
@@ -39,7 +40,7 @@ Double_t func2_gauss(Double_t* x, Double_t* par){
     return v;
 } 
 
-//Levy function 
+// Levy function 
 Double_t func3_levy(Double_t* x, Double_t* par){
     Double_t v = 0;
     if(reject_range_min<x[0] && x[0]<reject_range_max){TF1::RejectPoint();}
@@ -83,9 +84,20 @@ void fitting_sr() {
     TH1D *histograms[] = {h1, h2, h1_normalized, h2_normalized, sr};
     int numHistograms = 5;
     
-    //Fixing some colors
-    sr->SetLineColor(kBlack);
+    // Horizontal line from x1 to x2 at y
+    double y = 1.;  // Adjust this to your needs
+    TLine *line = new TLine(sr->GetXaxis()->GetXmin(), y, sr->GetXaxis()->GetXmax(), y);
+    line->SetLineColor(kBlack);
+    line->SetLineStyle(kDashed);
+    line->SetLineWidth(1);
 
+    // Fixing some colors
+    sr->SetLineWidth(1);
+    sr->SetLineColor(kBlack);
+    sr->SetMarkerStyle(4);
+    sr->SetMarkerSize(0.8);
+
+    // Setting fits
     TF1 *fit_exp = new TF1("fit_exp", func1_exp, 0.0, 1.0, 4);
     fit_exp->SetParameters(1.0, 1.0, 4.0, 0.0); 
     fit_exp->SetParName(0,"Const");
@@ -93,7 +105,7 @@ void fitting_sr() {
     fit_exp->SetParName(2,"R (fm)");
     fit_exp->SetParName(3,"#epsilon");
     fit_exp->SetLineColor(kBlue); 
-    fit_exp->SetLineWidth(1); 
+    fit_exp->SetLineWidth(2); 
     //TFitResultPtr res_exp;
 	//res_exp = sr->Fit(fit_exp, "S R");
 
@@ -104,8 +116,7 @@ void fitting_sr() {
 	fit_gauss->SetParName(2,"R (fm)");
 	fit_gauss->SetParName(3,"#epsilon");
     fit_gauss->SetLineColor(kRed); 
-	fit_gauss->SetLineStyle(0);
-	fit_gauss->SetLineWidth(1);
+	fit_gauss->SetLineWidth(2);
     //TFitResultPtr res_gauss;
 	//res_gauss = sr->Fit(fit_gauss, "S R");
 
@@ -117,11 +128,11 @@ void fitting_sr() {
 	fit_levy->SetParName(3,"#epsilon");
 	fit_levy->SetParName(4,"#aplha");
     fit_levy->SetLineColor(kGreen); 
-	fit_levy->SetLineWidth(1);
-	fit_levy->SetLineStyle(0);
+	fit_levy->SetLineWidth(2);
     //TFitResultPtr res_levy;
 	//res_levy = sr->Fit(fit_levy, "S R");
 
+    // Fitting
     sr->Fit(fit_exp, "R");
     sr->Fit(fit_gauss, "R");
     sr->Fit(fit_levy, "R");
@@ -134,7 +145,7 @@ void fitting_sr() {
     // Adding legend
     TLegend *h1_legend = new TLegend(0.7, 0.7, 0.9, 0.9);
     h1_legend->AddEntry((TObject*)0, "50-70%");
-    h1_legend->AddEntry(sr, "Coulomb Correction");
+    h1_legend->AddEntry(sr, "Data");
     h1_legend->AddEntry(fit_exp, "Exponential Fit");
     h1_legend->AddEntry(fit_gauss, "Gaussian Fit");
     h1_legend->AddEntry(fit_levy, "Levy fit");
@@ -146,23 +157,26 @@ void fitting_sr() {
     sr->SetStats(0);
 
     // Drawing the single ratio
-    c1->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); sr->Draw(); 
+    c1->cd(); sr->Draw(); 
     fit_exp->Draw("SameL"); 
     fit_gauss->Draw("SameL"); 
     fit_levy->Draw("SameL"); 
+    line->Draw("same");
     h1_legend->Draw();
-    
+
+    ///*    // comment/uncomment to save/show in TBrowser the image
     // Saving image
     const char *path = "./imgs/teste/";
     const char *prefix = "teste-fitting-sr";
-    const char *file_type = "pdf";
+    const char *file_type = "png";
     save_canvas_images(canvases, numCanvases, path, prefix, file_type);
     
     // Closing program
     delete fit_exp;
     delete fit_gauss;
     delete fit_levy;
-    close_program(canvases, numCanvases, histograms, numHistograms, fr);       
+    close_program(canvases, numCanvases, histograms, numHistograms, fr);  
+    //*/    // comment/uncomment to save/show in TBrowser the image
 
     gBenchmark->Show("hsimple");
 }
