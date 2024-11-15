@@ -106,8 +106,6 @@ void fitting_sr() {
     fit_exp->SetParName(3,"#epsilon");
     fit_exp->SetLineColor(kBlue); 
     fit_exp->SetLineWidth(2); 
-    //TFitResultPtr res_exp;
-	//res_exp = sr->Fit(fit_exp, "S R");
 
     TF1 *fit_gauss = new TF1("f_gauss", func2_gauss, 0.0, 1.0, 4);
 	fit_gauss->SetParameters(1.0, 1.0, 4.0, 0.0);
@@ -117,8 +115,6 @@ void fitting_sr() {
 	fit_gauss->SetParName(3,"#epsilon");
     fit_gauss->SetLineColor(kRed); 
 	fit_gauss->SetLineWidth(2);
-    //TFitResultPtr res_gauss;
-	//res_gauss = sr->Fit(fit_gauss, "S R");
 
     TF1 *fit_levy = new TF1("f_levy", func3_levy, 0.0, 1.0, 5);
 	fit_levy->SetParameters(1.0, 1.0, 4.0, 0.0, 4.0);
@@ -129,13 +125,14 @@ void fitting_sr() {
 	fit_levy->SetParName(4,"#aplha");
     fit_levy->SetLineColor(kGreen); 
 	fit_levy->SetLineWidth(2);
-    //TFitResultPtr res_levy;
-	//res_levy = sr->Fit(fit_levy, "S R");
 
     // Fitting
-    sr->Fit(fit_exp, "R");
-    sr->Fit(fit_gauss, "R");
-    sr->Fit(fit_levy, "R");
+    TFitResultPtr res_exp, res_gauss, res_levy;
+    res_exp = sr->Fit(fit_exp, "S R");
+    res_gauss = sr->Fit(fit_gauss, "S R");
+    res_levy = sr->Fit(fit_levy, "S R");
+
+    // Getting information
 
     // Adding labels
     sr->SetTitle("CMS Open Data 2011 - PbPb 2.76 TeV");
