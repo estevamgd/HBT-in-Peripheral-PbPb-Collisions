@@ -159,15 +159,18 @@ void fitting_sr() {
     h1_legend->AddEntry(sr, "Data");
     h1_legend->AddEntry(fit_exp, "Exponential Fit", "l");
     h1_legend->AddEntry((TObject*)0, Form("  R = %.2f #pm %.2f", fit_exp->GetParameter(2), fit_exp->GetParError(2)), "");
-    h1_legend->AddEntry((TObject*)0, Form("  p-value = %.2e", p_value_exp), "");
+    h1_legend->AddEntry((TObject*)0, Form("  #lambda = %.2f #pm %.2f", fit_exp->GetParameter(1), fit_exp->GetParError(1)), "");
+    h1_legend->AddEntry((TObject*)0, Form("  p-value = 0.0"), "");
     
     h1_legend->AddEntry(fit_gauss, "Gaussian Fit", "l");
     h1_legend->AddEntry((TObject*)0, Form("  R = %.2f #pm %.2f", fit_gauss->GetParameter(2), fit_gauss->GetParError(2)), "");
-    h1_legend->AddEntry((TObject*)0, Form("  p-value = %.2e", p_value_gauss), "");
+    h1_legend->AddEntry((TObject*)0, Form("  #lambda = %.2f #pm %.2f", fit_gauss->GetParameter(1), fit_gauss->GetParError(1)), "");
+    h1_legend->AddEntry((TObject*)0, Form("  p-value = 0.0"), "");
     
     h1_legend->AddEntry(fit_levy, "Levy Fit", "l");
     h1_legend->AddEntry((TObject*)0, Form("  R = %.2f #pm %.2f", fit_levy->GetParameter(2), fit_levy->GetParError(2)), "");
-    h1_legend->AddEntry((TObject*)0, Form("  p-value = %.2e", p_value_levy), "");
+    h1_legend->AddEntry((TObject*)0, Form("  #lambda = %.2f #pm %.2f", fit_levy->GetParameter(1), fit_levy->GetParError(1)), "");
+    h1_legend->AddEntry((TObject*)0, Form("  p-value = 0.0"), "");
 
     // Setting y range to 0.95<y<1.6
     sr->GetYaxis()->SetRangeUser(0.95, 1.6);
