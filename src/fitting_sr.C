@@ -15,6 +15,7 @@
 #include <TText.h>
 #include <TBenchmark.h>
 #include <TLine.h>
+#include <TFitResult.h>
 #include "../include/my_func.h"
 #include "../include/normalizer.h"
 #include "../include/analyze_tools.h"
@@ -133,6 +134,19 @@ void fitting_sr() {
     res_levy = sr->Fit(fit_levy, "S R");
 
     // Getting information
+    Double_t chi2_exp = res_exp->Chi2();
+    Int_t ndf_exp = res_exp->Ndf();
+
+    Double_t chi2_gauss = res_exp->Chi2();
+    Int_t ndf_gauss = res_exp->Ndf();
+
+    Double_t chi2_levy = res_levy->Chi2();
+    Int_t ndf_levy = res_levy->Ndf();
+
+    // Calculating p-value
+    Double_t p_value_exp = TMath::Prob(chi2_exp, ndf_exp);
+    Double_t p_value_gauss = TMath::Prob(chi2_gauss, ndf_gauss);
+    Double_t p_value_levy = TMath::Prob(chi2_levy, ndf_levy);
 
     // Adding labels
     sr->SetTitle("CMS Open Data 2011 - PbPb 2.76 TeV");
@@ -140,12 +154,20 @@ void fitting_sr() {
     sr->GetYaxis()->SetTitle("Single Ratio SS/OS");
 
     // Adding legend
-    TLegend *h1_legend = new TLegend(0.7, 0.7, 0.9, 0.9);
-    h1_legend->AddEntry((TObject*)0, "50-70%");
+    TLegend *h1_legend = new TLegend(0.7, 0.4, 0.9, 0.9); 
+    h1_legend->AddEntry((TObject*)0, "50-70%", "");
     h1_legend->AddEntry(sr, "Data");
-    h1_legend->AddEntry(fit_exp, "Exponential Fit");
-    h1_legend->AddEntry(fit_gauss, "Gaussian Fit");
-    h1_legend->AddEntry(fit_levy, "Levy fit");
+    h1_legend->AddEntry(fit_exp, "Exponential Fit", "l");
+    h1_legend->AddEntry((TObject*)0, Form("  R = %.2f #pm %.2f", fit_exp->GetParameter(2), fit_exp->GetParError(2)), "");
+    h1_legend->AddEntry((TObject*)0, Form("  p-value = %.2e", p_value_exp), "");
+    
+    h1_legend->AddEntry(fit_gauss, "Gaussian Fit", "l");
+    h1_legend->AddEntry((TObject*)0, Form("  R = %.2f #pm %.2f", fit_gauss->GetParameter(2), fit_gauss->GetParError(2)), "");
+    h1_legend->AddEntry((TObject*)0, Form("  p-value = %.2e", p_value_gauss), "");
+    
+    h1_legend->AddEntry(fit_levy, "Levy Fit", "l");
+    h1_legend->AddEntry((TObject*)0, Form("  R = %.2f #pm %.2f", fit_levy->GetParameter(2), fit_levy->GetParError(2)), "");
+    h1_legend->AddEntry((TObject*)0, Form("  p-value = %.2e", p_value_levy), "");
 
     // Setting y range to 0.95<y<1.6
     sr->GetYaxis()->SetRangeUser(0.95, 1.6);
