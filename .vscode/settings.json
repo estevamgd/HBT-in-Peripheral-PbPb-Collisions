@@ -87,6 +87,7 @@
         "fit2dHist.C": "cpp",
         "h2proj.C": "cpp",
         "fitting_sr.C": "cpp",
-        "create_hist_tree.C": "cpp"
+        "create_hist_tree.C": "cpp",
+        "signal_and_mixing_distribution.C": "cpp"
     }
 }

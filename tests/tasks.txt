@@ -99,3 +99,16 @@ there is some nan values for v in levy function, maybe that makes the graph not 
 p-value .. acho melhor o p-value que você pode calcular usando Chi2 e NDF (NDF=número de graus de liberdade do fit = 
 número de pontos da curva fitada menos o número de parâmetros da sua função).  
 https://root-forum.cern.ch/t/extracting-chi2-ndf-and-p-value-from-th1-chi2test/2549
+
+21/11/2024
+
+distribuição de sinal e mixing para qinv
+distribuição de sinal de qinv: https://github.com/CesarBernardes/AnalysisTools/blob/main/HBT_pp_13TeV/NTuplizerHBT/NtuplizerHBT/plugins/NtuplizerHBT.cc#L463-L541
+
+combinações dos pares
+utilizar as variáveis da tree
+montar o loop...usando os 4-momentos
+
+Ai eu queria que vc usasse os dois raciocínios daqui: https://github.com/CesarBernardes/AnalysisTools/blob/main/General/loops_for_correlations.c 
+(veja que o primeiro é igual ao que te passei no link acima....) o segundo com um único loop é esperado ser mais 
+rápido eu gostaria que vc demonstrasse isso.
