@@ -60,6 +60,7 @@ void hbt_analysis_perpheralPbPb() {
 
     // Getting how many entries
     Long64_t nentries = t->GetEntries();
+    double d_nentries = t->GetEntries();
 
     // Setting canvases
     TCanvas *c1 = new TCanvas("c1", "Histograms", 7680, 4320);
@@ -74,19 +75,21 @@ void hbt_analysis_perpheralPbPb() {
     int numCanvases = 3;
 
     // Setting histograms
-    TH1D *h1 = cHist("h1", "HFsumET[GeV]", "#Events/bin", nentries, -20, 400);
-    TH1D *h2 = cHist("h2", "coulombWOS", "#Pairs/bin", 10000, 0.4, 1.18);
-    TH1D *h3 = cHist("h3", "coulombWSS", "#Pairs/bin", 10000, 0.8, 3.2);
-    TH1D *h4 = cHist("h4", "Ntrk", "#Events/bin", 10000, -20, 500);
-    TH1D *h5 = cHist("h5", "qinvSigOS[GeV]", "#Pairs/bin", nentries, -0.1, 1.23);
-    TH1D *h6 = cHist("h6", "qinvSigSS[GeV]", "#Pairs/bin", nentries, -0.1, 1.3);
-    TH1D *h7 = cHist("h7", "pT[GeV]", "#Tracks/bin", 10000, -1, 45);
-    TH1D *h8 = cHist("h8", "trkEta", "#Tracks/bin", nentries, -2.6, 2.6);
-    TH1D *h9 = cHist("h9", "trkPhi", "#Tracks/bin", nentries, -3.4, 3.4);
-    TH1D *h10 = cHist("h10", "trkPtRes", "#Tracks/bin", nentries, 0, 0.11);
-    TH1D *h11 = cHist("h11", "trkDxySig", "#Tracks/bin", nentries, -3.5, 3.5);
-    TH1D *h12 = cHist("h12", "trkDzSig", "#Tracks/bin", nentries, -3.5, 3.5);
-    TH1D *h13 = cHist("h13", "trkNpixLayers", "#Tracks/bin", 100, 0, 5);
+    double ninterval = 1., nlength = 0.02, nscale = 1./1.;
+
+    TH1D *h1 = cHist("h1", "HFsumET[GeV]", "#Events/bin", 0, 400, ninterval, nlength, nscale);
+    TH1D *h2 = cHist("h2", "coulombWOS", "#Pairs/bin", 0.46, 1.1, ninterval, nlength, nscale);
+    TH1D *h3 = cHist("h3", "coulombWSS", "#Pairs/bin", 1, 3.2, ninterval, nlength, nscale);
+    TH1D *h4 = cHist("h4", "Ntrk", "#Events/bin", 0, 500, ninterval, nlength, nscale);
+    TH1D *h5 = cHist("h5", "qinvSigOS[GeV]", "#Pairs/bin", 0., 1.1, ninterval, nlength, nscale);
+    TH1D *h6 = cHist("h6", "qinvSigSS[GeV]", "#Pairs/bin", 0., 1.1, ninterval, nlength, nscale);
+    TH1D *h7 = cHist("h7", "pT[GeV]", "#Tracks/bin", 0, 45, ninterval, nlength, nscale);
+    TH1D *h8 = cHist("h8", "trkEta", "#Tracks/bin", -2.6, 2.6, ninterval, nlength, nscale);
+    TH1D *h9 = cHist("h9", "trkPhi", "#Tracks/bin", -3.4, 3.4, ninterval, nlength, nscale);
+    TH1D *h10 = cHist("h10", "trkPtRes", "#Tracks/bin", 0, 0.11, ninterval, nlength, nscale);
+    TH1D *h11 = cHist("h11", "trkDxySig", "#Tracks/bin", -3.5, 3.5, ninterval, nlength, nscale);
+    TH1D *h12 = cHist("h12", "trkDzSig", "#Tracks/bin", -3.5, 3.5, ninterval, nlength, nscale);
+    TH1D *h13 = cHist("h13", "trkNpixLayers", "#Tracks/bin", 0, 5, ninterval, nlength, nscale);
 
     TH1D *histograms[] = {h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13};
     int numHistograms = 13;
@@ -137,7 +140,7 @@ void hbt_analysis_perpheralPbPb() {
     c3->cd(); gPad->SetGrid(); gPad->SetLeftMargin(0.15); h13->Draw(); 
 
     // Save canvas images
-    const char *path = "./imgs/teste/";
+    const char *path = "./imgs/final/";
     const char *prefix = "all-histograms";
     const char *file_type = "png";
 
