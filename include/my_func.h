@@ -35,8 +35,9 @@ bool getFileTree(const char* file_name, const char* tree_name, TFile *&fr, TTree
 }
 
 // Bin size calculator
-int numBins(int numValues) {
-    return (int)sqrt(numValues);
+double numBins(double interval, double length ,double scale) {
+    double n = (interval / length) * scale;
+    return n;
 }
 
 /* Histogram layout
@@ -61,13 +62,14 @@ Line Style:
 kSolid = 1, kDashed = 2, kDotted = 3, kDashDotted = 4
 */
 TH1D* cHist(const char* name, const char* xAxisTitle, const char* yAxisTitle, 
-                      int nVal, double xMin, double xMax, 
-                      int fill_color = 920, double fill_alpha = 1, int fill_style = 1001, 
-                      int line_color = 1, double line_alpha = 1, int line_style = 1001, 
-                      int line_width = 1, double label_size = 0.04) {
+                        double xMin, double xMax, 
+                        double ninterval = 275., double nlength = 0.02, double nscale = 1., 
+                        int fill_color = 920, double fill_alpha = 1, int fill_style = 1001, 
+                        int line_color = 1, double line_alpha = 1, int line_style = 1001, 
+                        int line_width = 1, double label_size = 0.04) {
     // Create the histogram
-    int nBins = numBins(nVal);
-    TH1D* h = new TH1D(name, "", nBins, xMin, xMax);
+    double scale = numBins(ninterval, nlength, nscale);
+    TH1D* h = new TH1D(name, "", scale, xMin, xMax);
 
     // Set visual properties
     h->SetFillColorAlpha(fill_color, fill_alpha); 
