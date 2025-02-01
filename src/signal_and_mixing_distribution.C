@@ -25,15 +25,12 @@ void signal_and_mixing_distribution() {
     TTree *t = nullptr;
     getFileTree("data/HiForestAOD_UPC.root", "demo/HBT", fr, t);
 
-    TFile *fr2 = nullptr;
-    TTree *t2 = nullptr;
-    getFileTree("data/output_particles.root", "particles", fr2, t2);
-
     // Variables from the tree
-    Int_t maxSize = 1700, Ntrk;
-    Float_t HFsumET, trkPt[maxSize], trkEta[maxSize], trkPhi[maxSize], trkMass = 0.13957; // Pion mass assumed
+    Int_t maxSize = 1700, Ntrk; 
+    Float_t HFsumET, trkPt[maxSize], trkEta[maxSize], trkPhi[maxSize], pionMass = 0.13957039; // Pion mass [GeV] from PDG
+    int totalElements = 0;
 
-    std::vector<TLorentzVector> particles;
+    std::vector<std::vector<TLorentzVector>> AllTrackFourVector;
 
     t->SetBranchAddress("HFsumET", &HFsumET);
     t->SetBranchAddress("Ntrk", &Ntrk);
@@ -41,10 +38,8 @@ void signal_and_mixing_distribution() {
     t->SetBranchAddress("trkEta", trkEta);
     t->SetBranchAddress("trkPhi", trkPhi);
 
-    t2->SetBranchAddress("particles", &particles);
-
     // Getting how many entries
-    Long64_t nentries = t->GetEntries();
+    Long64_t nentries = t->GetEntries(), trackvec_max_size = 0;
 
     // Histograms
     double ninterval = 1., nlength = 0.02, nscale = 1./1.;
@@ -65,87 +60,92 @@ void signal_and_mixing_distribution() {
 
     // Benchmarking
     TBenchmark benchmark;
+
+
+    // Create 4-vector
+    benchmark.Start("4-Vector");
+
+    for (Long64_t i = 0; i < nentries; i++) {
+        t->GetEntry(i);
+ 
+        if (HFsumET > 100 && HFsumET < 375) continue;
+
+        std::vector<TLorentzVector> TrackFourVector;
+        
+        for (int j = 0; j < Ntrk; j++) {
+            TLorentzVector vec;
+            
+            vec.SetPtEtaPhiM(trkPt[j], trkEta[j], trkPhi[j], pionMass);
+            TrackFourVector.push_back(vec);
+        }
+
+        if (TrackFourVector.size() > 1) {
+            int theseElements = TrackFourVector.size()*(TrackFourVector.size()-1); 
+            totalElements += theseElements;
+
+            AllTrackFourVector.push_back(TrackFourVector);
+        }
+        
+    }
+    benchmark.Stop("4-Vector");
+
+    // Triple-loop method
+    benchmark.Start("TripleLoop");
+    for (int i = 0; i < AllTrackFourVector.size(); i++) {
+        for (size_t p1 = 0; p1 < AllTrackFourVector[i].size(); p1++) {
+            for (size_t p2 = p1 + 1; p2 < AllTrackFourVector[i].size(); p2++) {
+                Double_t qinv = GetQ(AllTrackFourVector[i][p1], AllTrackFourVector[i][p2]);
+            }
+        }
+    }
+    benchmark.Stop("TripleLoop");
     
     // Double-loop method
     benchmark.Start("DoubleLoop");
-    for (Long64_t i = 0; i < nentries; i++) {
-        t->GetEntry(i);
-        std::vector<TLorentzVector> particles;
+    for (int i = 0; i < AllTrackFourVector.size(); i++) {
+        
+        for (int k = 0; k < AllTrackFourVector[i].size()*(AllTrackFourVector[i].size() - 1); k++) {
+            int p1 = k / (AllTrackFourVector[i].size() - 1);
+            int p2 = (k % (AllTrackFourVector[i].size() - 1)) + 1;
 
-        // Create 4-momentum vectors for tracks
-        for (int j = 0; j < Ntrk; j++) {
-            TLorentzVector vec;
-            vec.SetPtEtaPhiM(trkPt[j], trkEta[j], trkPhi[j], trkMass);
-            particles.push_back(vec);
-        }
-
-        // Double-loop mixing
-        for (size_t p1 = 0; p1 < particles.size(); p1++) {
-            for (size_t p2 = p1 + 1; p2 < particles.size(); p2++) {
-                Double_t qinv = GetQ(particles[p1], particles[p2]);
-                //h_signal->Fill(qinv);
+            if (p2 > p1) {
+                Double_t qinv = GetQ(AllTrackFourVector[i][p1], AllTrackFourVector[i][p2]);
             }
         }
     }
     benchmark.Stop("DoubleLoop");
-    
+
     // Single-loop method
     benchmark.Start("SingleLoop");
-    for (Long64_t i = 0; i < Ntrk * nentries; i++) {
-        int j = i / nentries;
-        int k = i % nentries;
+    for (int j = 0, a = 0, b = 0, i = 0; j < totalElements; j++) {
+        int trigger = AllTrackFourVector[i].size() * (AllTrackFourVector[i].size() - 1);
 
-        std::cout << "max: " << Ntrk * nentries 
-        << " i: " << i << " Ntrk: " << Ntrk << " nenties: " << nentries << std::endl;
-
-        t->GetEntry(j);
-        std::vector<TLorentzVector> particles;
-
-        TLorentzVector vec;
-        vec.SetPtEtaPhiM(trkPt[k], trkEta[k], trkPhi[k], trkMass);
-        particles.push_back(vec);
-
-        int p1 = k / particles.size();
-        int p2 = k % particles.size();
-
-        std::cout << "max: " << particles.size() * particles.size() 
-        << "k: " << k << " p1: " << p1 << " p2: " << p2 << std::endl;
-
-        TLorentzVector current = particles[p1];
-
-        Double_t qinv = GetQ(current, particles[p2]);
-        //h_mixing->Fill(qinv);
+        int k = j - a;
         
-         
-        // Create 4-momentum vectors for tracks
-        for (int j = 0; j < Ntrk; j++) {
-            TLorentzVector vec;
-            vec.SetPtEtaPhiM(trkPt[j], trkEta[j], trkPhi[j], trkMass);
-            particles.push_back(vec);
+        int p1 = k / (AllTrackFourVector[i].size() - 1);
+        int p2 = (k % (AllTrackFourVector[i].size() - 1)) + 1;
+        
+        if (p2 > p1) {
+            Double_t qinv = GetQ(AllTrackFourVector[i][p1], AllTrackFourVector[i][p2]);
         }
-        
-        // Single-loop mixing
-        for (int k = 0; k < particles.size() * particles.size(); k++) {
-            int p1 = k / particles.size();
-            int p2 = k % particles.size();
 
-            std::cout << "max: " << particles.size() * particles.size() 
-            << "k: " << k << " p1: " << p1 << " p2: " << p2 << std::endl;
-
-            TLorentzVector current = particles[p1];
-
-            Double_t qinv = GetQ(current, particles[p2]);
-            //h_mixing->Fill(qinv);
-        
+        b++;
+        if (b == trigger) {
+            a = j + 1;
+            b = 0;
+            i++;
         }
     }
     benchmark.Stop("SingleLoop");
     
+    
     // Print benchmark results
     std::cout << "Benchmark Results:" << std::endl;
+    benchmark.Show("4-Vector");
+    benchmark.Show("TripleLoop");
     benchmark.Show("DoubleLoop");
     benchmark.Show("SingleLoop"); 
-    
+    /*
     // Save histograms
     TCanvas *c1 = new TCanvas("c1", "Signal and Mixing Distributions", 1200, 800);
     
@@ -172,5 +172,5 @@ void signal_and_mixing_distribution() {
     
     // Closing program
     close_program(canvases, numCanvases, histograms, numHistograms, fr);  
-        // comment/uncomment to save/show in TBrowser the image
+    */    // comment/uncomment to save/show in TBrowser the image
 }
