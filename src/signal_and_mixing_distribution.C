@@ -4,12 +4,14 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TROOT.h"
-#include "TLorentzVector.h"
+#include "Math/LorentzVector.h"
+#include "Math/PtEtaPhiM4D.h"
 #include "TMath.h"
 #include "TCanvas.h"
 #include "TH1D.h"
 #include "TStyle.h"
 #include "TBenchmark.h"
+#include "TStopwatch.h"
 #include "TLegend.h"
 
 #include "../include/data_func.h"
@@ -27,13 +29,11 @@ void signal_and_mixing_distribution() {
 
     // Variables from the tree
     Int_t maxSize = 1700, Ntrk; 
-    Float_t HFsumET, trkPt[maxSize], trkEta[maxSize], trkPhi[maxSize], pionMass = 0.13957039; // Pion mass [GeV] from PDG
-    int totalElements = 0;
-
-    std::vector<std::vector<TLorentzVector>> AllTrackFourVector;
+    Float_t HFsumET, trkCharge[maxSize], trkPt[maxSize], trkEta[maxSize], trkPhi[maxSize], pionMass = 0.13957039; // Pion mass [GeV] from PDG
 
     t->SetBranchAddress("HFsumET", &HFsumET);
     t->SetBranchAddress("Ntrk", &Ntrk);
+    //t->SetBranchAddress("trkCharge", trkCharge);
     t->SetBranchAddress("trkPt", trkPt);
     t->SetBranchAddress("trkEta", trkEta);
     t->SetBranchAddress("trkPhi", trkPhi);
@@ -59,92 +59,60 @@ void signal_and_mixing_distribution() {
     TH1D *histograms[] = {h_signal, h_mixing};
 
     // Benchmarking
-    TBenchmark benchmark;
-
+    TStopwatch stopwatch, stopwatch1, stopwatch2;
 
     // Create 4-vector
-    benchmark.Start("4-Vector");
-
+    stopwatch.Start(kFALSE);
     for (Long64_t i = 0; i < nentries; i++) {
         t->GetEntry(i);
  
-        if (HFsumET > 100 && HFsumET < 375) continue;
+        if (HFsumET < 100 && HFsumET > 375) continue;
 
-        std::vector<TLorentzVector> TrackFourVector;
-        
+        std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> TrackFourVector;
         for (int j = 0; j < Ntrk; j++) {
-            TLorentzVector vec;
-            
-            vec.SetPtEtaPhiM(trkPt[j], trkEta[j], trkPhi[j], pionMass);
+            ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>> vec(trkPt[j], trkEta[j], trkPhi[j], pionMass);
             TrackFourVector.push_back(vec);
         }
 
+        // --- SIGNAL ---
         if (TrackFourVector.size() > 1) {
-            int theseElements = TrackFourVector.size()*(TrackFourVector.size()-1); 
-            totalElements += theseElements;
-
-            AllTrackFourVector.push_back(TrackFourVector);
-        }
-        
-    }
-    benchmark.Stop("4-Vector");
-
-    // Triple-loop method
-    benchmark.Start("TripleLoop");
-    for (int i = 0; i < AllTrackFourVector.size(); i++) {
-        for (size_t p1 = 0; p1 < AllTrackFourVector[i].size(); p1++) {
-            for (size_t p2 = p1 + 1; p2 < AllTrackFourVector[i].size(); p2++) {
-                Double_t qinv = GetQ(AllTrackFourVector[i][p1], AllTrackFourVector[i][p2]);
+            // Double-loop method
+            stopwatch1.Start(kFALSE);
+            for (size_t p1 = 0; p1 < TrackFourVector.size(); p1++) {
+                for (size_t p2 = p1 + 1; p2 < TrackFourVector.size(); p2++) {
+                    if (trkCharge[p1]*trkCharge[p2] > 0) {
+                        Double_t qinv_SS = GetQ(TrackFourVector[p1], TrackFourVector[p2]);
+                    } else {
+                        Double_t qinv_OS = GetQ(TrackFourVector[p1], TrackFourVector[p2]);
+                    }
+                }
             }
-        }
-    }
-    benchmark.Stop("TripleLoop");
-    
-    // Double-loop method
-    benchmark.Start("DoubleLoop");
-    for (int i = 0; i < AllTrackFourVector.size(); i++) {
-        
-        for (int k = 0; k < AllTrackFourVector[i].size()*(AllTrackFourVector[i].size() - 1); k++) {
-            int p1 = k / (AllTrackFourVector[i].size() - 1);
-            int p2 = (k % (AllTrackFourVector[i].size() - 1)) + 1;
+            stopwatch1.Stop();
 
-            if (p2 > p1) {
-                Double_t qinv = GetQ(AllTrackFourVector[i][p1], AllTrackFourVector[i][p2]);
+            // Single-loop method
+            stopwatch2.Start(kFALSE);
+            for (int k = 0; k < TrackFourVector.size()*(TrackFourVector.size() - 1); k++) {
+                int p1 = k / (TrackFourVector.size() - 1);
+                int p2 = (k % (TrackFourVector.size() - 1)) + 1;
+
+                if (p1 > p2) continue;
+                if (trkCharge[p1]*trkCharge[p2] > 0) {
+                    Double_t qinv_SS = GetQ(TrackFourVector[p1], TrackFourVector[p2]);
+                } else {
+                    Double_t qinv_OS = GetQ(TrackFourVector[p1], TrackFourVector[p2]);
+                }
             }
+            stopwatch2.Stop();
         }
-    }
-    benchmark.Stop("DoubleLoop");
-
-    // Single-loop method
-    benchmark.Start("SingleLoop");
-    for (int j = 0, a = 0, b = 0, i = 0; j < totalElements; j++) {
-        int trigger = AllTrackFourVector[i].size() * (AllTrackFourVector[i].size() - 1);
-
-        int k = j - a;
         
-        int p1 = k / (AllTrackFourVector[i].size() - 1);
-        int p2 = (k % (AllTrackFourVector[i].size() - 1)) + 1;
-        
-        if (p2 > p1) {
-            Double_t qinv = GetQ(AllTrackFourVector[i][p1], AllTrackFourVector[i][p2]);
-        }
-
-        b++;
-        if (b == trigger) {
-            a = j + 1;
-            b = 0;
-            i++;
-        }
     }
-    benchmark.Stop("SingleLoop");
-    
+    stopwatch.Stop();
     
     // Print benchmark results
     std::cout << "Benchmark Results:" << std::endl;
-    benchmark.Show("4-Vector");
-    benchmark.Show("TripleLoop");
-    benchmark.Show("DoubleLoop");
-    benchmark.Show("SingleLoop"); 
+    stopwatch.Print();
+    stopwatch1.Print();
+    stopwatch2.Print();
     /*
     // Save histograms
     TCanvas *c1 = new TCanvas("c1", "Signal and Mixing Distributions", 1200, 800);
