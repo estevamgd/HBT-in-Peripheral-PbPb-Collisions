@@ -185,6 +185,7 @@ void test_signal() {
         x++;
     }
 
+    // --- PHI MIXING ---
     if (phiSwitch) {
         // add pool left overs to phi
         for (int event = 0; event < poolEvents.size(); event++) {
